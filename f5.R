@@ -6,7 +6,7 @@ file.name <- "expressionMatrix.csv"
 file <- paste(file.path, file.name, sep = '')
 pre.data <- read.csv(file = file, row.names = 1)
 
-q = 0.970 # 95% condidence
+q = 0.970 # 95% confidence
 
 Col <- function(x) {
   apply(cbind(pre.data[,x * 3 - 2], pre.data[,x * 3 - 1], pre.data[,x * 3]),
@@ -29,28 +29,39 @@ Outlier <- function(x) {
   return(mean(x))
 }
 
-post.data <- Col(1)
-for (i in 2:8) {
-  post.data <- cbind(post.data, Col(i))
-}
-rownames(post.data) <- rownames(pre.data)
-for (i in 1:8) {
-  post.data <- post.data[post.data[,i] != 0,]
+total.data <- list()
+ribo.data <- list()
+for (i in 1:4) {
+  total.data[[i]] <- cbind(Col(i * 2 - 1), Col(i * 2))
+  rownames(total.data[[i]]) <- rownames(pre.data)
+  total.data[[i]] <- total.data[[i]][total.data[[i]][,1] != 0,]
+  total.data[[i]] <- total.data[[i]][total.data[[i]][,2] != 0,]
+  ribo.data[[i]] <- total.data[[i]][!grepl('VNG', rownames(total.data[[i]])),]
 }
 
-par(mfrow = c(2, 2))
+par(mfrow = c(2, 4))
 
 for (i in 1:4) {
-  fit <- lm(log10(post.data[,i + 4]) ~ log10(post.data[,i]))
-  plot(post.data[,i], post.data[,i + 4], log = 'xy', xlab = 'mRNA',
-    ylab = 'RPF', main = paste('Time Point', i))
-  abline(fit, col = 'red')
+  x <- total.data[[i]][,1]
+  y <- total.data[[i]][,2]
+  fit <- lm(log10(y) ~ log10(x))
+  plot(x, y, log = 'xy', xlab = 'mRNA', ylab = 'RPF',
+    main = paste('Total Time Point', i))
+  abline(fit, col = 'blue')
   r2 <- round(summary(fit)$r.squared, 2)
-  text(1e-2, 1e4, r2)
-  print(expression(r^'2'))
+  text(1e-1, 1e3, r2)
 }
 
-ribo.data <- post.data[]
+for (i in 1:4) {
+  x <- ribo.data[[i]][,1]
+  y <- ribo.data[[i]][,2]
+  fit <- lm(log10(y) ~ log10(x))
+ plot(x, y, log = 'xy', xlab = 'mRNA', ylab = 'RPF',
+   main = paste('Ribsomal Time Point', i))
+ abline(fit, col = 'blue')
+ r2 <- round(summary(fit)$r.squared, 2)
+ text(1e2, 1e3, r2)
+}
 
 end <- Sys.time()
 print(end - start)
