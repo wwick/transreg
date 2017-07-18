@@ -40,27 +40,31 @@ for (i in 1:4) {
 }
 
 par(mfrow = c(2, 4))
+xlim <- c(1e-4, 1e6)
+ylim <- xlim
 
 for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = 'mRNA', ylab = 'RPF',
+  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim)
+  title(xlab = 'mRNA', ylab = 'RPF',
     main = paste('Total Time Point', i))
   abline(fit, col = 'blue')
   r2 <- round(summary(fit)$r.squared, 2)
-  text(1e-1, 1e3, r2)
+  text(3e-1, 1e5, paste('r2 =', r2))
 }
 
 for (i in 1:4) {
   x <- ribo.data[[i]][,1]
   y <- ribo.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
- plot(x, y, log = 'xy', xlab = 'mRNA', ylab = 'RPF',
-   main = paste('Ribsomal Time Point', i))
- abline(fit, col = 'blue')
- r2 <- round(summary(fit)$r.squared, 2)
- text(1e2, 1e3, r2)
+  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim)
+  title(xlab = 'mRNA', ylab = 'RPF',
+    main = paste('Ribosomal Time Point', i))
+  abline(fit, col = 'blue')
+  r2 <- round(summary(fit)$r.squared, 2)
+  text(3e-1, 1e5, paste('r2 =', r2))
 }
 
 end <- Sys.time()
