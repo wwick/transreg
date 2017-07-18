@@ -3,9 +3,6 @@ start <- Sys.time()
 file.path <- "~\\projects\\transcriptomics\\data\\"
 file.name <- "expressionMatrix.csv"
 
-file <- paste(file.path, file.name, sep = '')
-pre.data <- read.csv(file = file, row.names = 1)
-
 q = 0.970 # 95% confidence
 
 Col <- function(x) {
@@ -29,6 +26,25 @@ Outlier <- function(x) {
   return(mean(x))
 }
 
+Graph <- function(fit) {
+  title(xlab = 'mRNA (TPM)', ylab = 'RPF (TPM)')
+  abline(fit, col = 'blue')
+
+  r2 <- round(summary(fit)$r.squared, 2)
+  text(3e-1, 1e5, paste('r2 =', r2))
+
+  m <- round(coef(fit)[2], 3)
+  b <- round(coef(fit)[1], 3)
+  text(3e-1, 1e4, paste('y = ', m, 'x + ', b, sep = ''))
+
+  f <- summary(fit)$fstatistic
+  p <- signif(pf(f[1], f[2], f[3], lower.tail = FALSE), 3)
+  text(3e-1, 1e3, paste('p =', p))
+}
+
+file <- paste(file.path, file.name, sep = '')
+pre.data <- read.csv(file = file, row.names = 1)
+
 total.data <- list()
 ribo.data <- list()
 for (i in 1:4) {
@@ -47,24 +63,18 @@ for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim)
-  title(xlab = 'mRNA', ylab = 'RPF',
+  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
     main = paste('Total Time Point', i))
-  abline(fit, col = 'blue')
-  r2 <- round(summary(fit)$r.squared, 2)
-  text(3e-1, 1e5, paste('r2 =', r2))
+  Graph(fit)
 }
 
 for (i in 1:4) {
   x <- ribo.data[[i]][,1]
   y <- ribo.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim)
-  title(xlab = 'mRNA', ylab = 'RPF',
+  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
     main = paste('Ribosomal Time Point', i))
-  abline(fit, col = 'blue')
-  r2 <- round(summary(fit)$r.squared, 2)
-  text(3e-1, 1e5, paste('r2 =', r2))
+  Graph(fit)
 }
 
 end <- Sys.time()
