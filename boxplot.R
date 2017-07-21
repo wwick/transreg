@@ -4,6 +4,7 @@ file.path <- "~\\projects\\transcriptomics\\data\\"
 file.name <- "expressionMatrix.csv"
 
 q = 0.970 # 95% confidence
+require('outliers')
 
 Col <- function(x) {
   apply(cbind(pre.data[,x * 3 - 2], pre.data[,x * 3 - 1], pre.data[,x * 3]),
@@ -56,27 +57,62 @@ for (i in 1:4) {
 }
 
 par(mfrow = c(2, 4))
-xlab <- 'mRNA (TPM)'
-ylab <- 'Residual'
-xlim <- c(1e-4, 1e6)
-ylim <- c(-2.5, 2.5)
+# xlim <- c(1e-4, 1e6)
+# ylim <- xlim
 
-for (i in 1:4) {
-  x <- total.data[[i]][,1]
-  y <- total.data[[i]][,2]
-  fit <- lm(log10(y) ~ log10(x))
-  plot(x, resid(fit), log = 'x', main = paste('Total Time Point', i),
-    xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim)
-
+Pairs <- function(x) {
+  return (x[2] / x[1])
 }
 
+outs <- list()
 for (i in 1:4) {
-  x <- ribo.data[[i]][,1]
-  y <- ribo.data[[i]][,2]
-  fit <- lm(log10(y) ~ log10(x))
-  plot(x, resid(fit), log = 'x', main = paste('Ribosomal Time Point', i),
-      xlab = xlab, ylab = ylab, xlim = xlim, ylim = ylim)
+  x <- apply(total.data[[i]], 1, Pairs)
+  boxplot(x, horizontal = TRUE, main = paste("Time Point", i), xlab = xlab)
+  outliersValue <- boxplot.stats(x)$out
+  outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
+  y[i] <- mean(x)
 }
+
+names <- rownames(pre.data)
+outs.mat <- matrix(nrow = length(names), ncol = 4)
+rownames(outs.mat) <- names
+colnames(outs.mat) <- c('TP 1', 'TP 2', 'TP 3', 'TP 4')
+for (i in 1:dim(outs.mat)[1]) {
+  for (j in 1:4) {
+    outs.mat[i,j] <- rownames(outs.mat)[i] %in% outs[[j]]
+  }
+}
+# outs.mat <- outs.mat[outs.mat[,1] == TRUE | outs.mat[,2] == TRUE |
+#   outs.mat[,3] == TRUE | outs.mat[,4] == TRUE,]
+# print(outs.mat)
+
+# print(y)
+# test <- dixon.test(y)
+# print(test$statistic)
+# print(test$p.value)
+
+ribo.outs <- list()
+for (i in 1:4) {
+  x <- apply(ribo.data[[i]], 1, Pairs)
+  boxplot(x, horizontal = TRUE, main = paste("Time Point", i), xlab = xlab)
+  outliersValue <- boxplot.stats(x)$out
+  #x <- x[!x %in% outliersValue]
+  ribo.outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
+  # y[i] <- mean(x)
+}
+ribo.names <- names[!grepl('VNG', names)]
+
+ribo.mat <- matrix(nrow = length(ribo.names), ncol = 4)
+rownames(ribo.mat) <- ribo.names
+colnames(ribo.mat) <- c('TP 1', 'TP 2', 'TP 3', 'TP 4')
+for (i in 1:dim(ribo.mat)[1]) {
+  for (j in 1:4) {
+    ribo.mat[i,j] <- rownames(ribo.mat)[i] %in% ribo.outs[[j]]
+  }
+}
+# ribo.mat <- ribo.mat[ribo.mat[,1] == TRUE | ribo.mat[,2] == TRUE |
+#   ribo.mat[,3] == TRUE | ribo.mat[,4] == TRUE,]
+# print(ribo.mat)
 
 end <- Sys.time()
 print(end - start)

@@ -3,7 +3,7 @@ start <- Sys.time()
 file.path <- "~\\projects\\transcriptomics\\data\\"
 file.name <- "expressionMatrix.csv"
 
-q = 0.97 # 95% confidence
+q = 0.970 # 95% confidence
 
 Col <- function(x) {
   apply(cbind(pre.data[,x * 3 - 2], pre.data[,x * 3 - 1], pre.data[,x * 3]),
@@ -63,18 +63,20 @@ for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
-    main = paste('Total Time Point', i))
-  Graph(fit)
+  plot(density(resid(fit)))
+#  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
+#    main = paste('Total Time Point', i))
+#  Graph(fit)
 }
 
 for (i in 1:4) {
   x <- ribo.data[[i]][,1]
   y <- ribo.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
-    main = paste('Ribosomal Time Point', i))
-  Graph(fit)
+  plot(density(resid(fit)))
+#  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
+#    main = paste('Ribosomal Time Point', i))
+#  Graph(fit)
 }
 
 end <- Sys.time()

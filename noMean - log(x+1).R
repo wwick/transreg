@@ -10,8 +10,8 @@ q = 0.970 # 95% confidence
 # Dixon's Q Test
 Outlier <- function(x) {
   x <- sort(x)
-  q.max <- (x[3] - x[2]) / (x[2] - x[1])
-  q.min <- (x[2] - x[1]) / (x[3] - x[2])
+  q.max <- (x[3] - x[2]) / (x[3] - x[1])
+  q.min <- (x[2] - x[1]) / (x[3] - x[1])
   if (!is.na(q.max) && q.max > q.min && q.max > q) {
     x[3] <- NA
     return(x)

@@ -3,7 +3,7 @@ start <- Sys.time()
 file.path <- "~\\projects\\transcriptomics\\data\\"
 file.name <- "expressionMatrix.csv"
 
-q = 0.97 # 95% confidence
+q = 0.970 # 95% confidence
 
 Col <- function(x) {
   apply(cbind(pre.data[,x * 3 - 2], pre.data[,x * 3 - 1], pre.data[,x * 3]),
@@ -55,27 +55,23 @@ for (i in 1:4) {
   ribo.data[[i]] <- total.data[[i]][!grepl('VNG', rownames(total.data[[i]])),]
 }
 
-par(mfrow = c(2, 4))
-xlim <- c(1e-4, 1e6)
-ylim <- xlim
+par(mfrow = c(2, 2))
 
 for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
-    main = paste('Total Time Point', i))
-  Graph(fit)
+  boxplot(resid(fit), main = paste('Total Time Point', i), horizontal = TRUE, xlab = 'Residual')
+
 }
 
-for (i in 1:4) {
-  x <- ribo.data[[i]][,1]
-  y <- ribo.data[[i]][,2]
-  fit <- lm(log10(y) ~ log10(x))
-  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
-    main = paste('Ribosomal Time Point', i))
-  Graph(fit)
-}
+# for (i in 1:4) {
+#   x <- ribo.data[[i]][,1]
+#   y <- ribo.data[[i]][,2]
+#   fit <- lm(log10(y) ~ log10(x))
+#   boxplot(resid(fit), main = paste('Ribosomal Time Point', i))
+#
+# }
 
 end <- Sys.time()
 print(end - start)
