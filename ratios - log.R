@@ -41,7 +41,7 @@ for (i in 1:4) {
 }
 
 Pairs <- function(x) {
-  return (x[2] / x[1])
+  return (log2(x[2]) / log2(x[1]))
 }
 
 Anova <- function(ratios) {
@@ -85,7 +85,7 @@ for (i in 1:dim(outs.mat)[1]) {
 }
 outs.mat <- outs.mat[outs.mat[,1] == TRUE | outs.mat[,2] == TRUE |
   outs.mat[,3] == TRUE | outs.mat[,4] == TRUE,]
-write.csv(outs.mat, "~\\projects\\transcriptomics\\results\\totalRatioOutliers.csv")
+write.csv(outs.mat, "~\\projects\\transcriptomics\\results\\totalRatioOutliers - Log.csv")
 
 ribo.outs <- list()
 ribo.ratios <- list()
@@ -109,7 +109,7 @@ for (i in 1:dim(ribo.mat)[1]) {
 }
 ribo.mat <- ribo.mat[ribo.mat[,1] == TRUE | ribo.mat[,2] == TRUE |
   ribo.mat[,3] == TRUE | ribo.mat[,4] == TRUE,]
-write.csv(ribo.mat, "~\\projects\\transcriptomics\\results\\riboRatioOutliers.csv")
+write.csv(ribo.mat, "~\\projects\\transcriptomics\\results\\riboRatioOutliers - Log.csv")
 
 end <- Sys.time()
 print(end - start)

@@ -55,40 +55,63 @@ for (i in 1:4) {
   ribo.data[[i]] <- total.data[[i]][!grepl('VNG', rownames(total.data[[i]])),]
 }
 
-
-par(mfrow = c(2, 4))
-
+resids <- list()
+outs <- list()
 for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
   fit <- lm(log10(y) ~ log10(x))
-  # fit <- lm(y ~ x)
-  # print(paste("Total Time Point", i))
-  # print(outlierTest(fit))
 
-  resid <- rstandard(fit)
-  qqnorm(resid,
-    ylab = "Standardized Residuals",
-    xlab = "Normal Scores",
-    main = paste("Total Time Point", i))
-  qqline(resid)
+  resids[[i]] <- resid(fit)
+  mean <- mean(resids[[i]])
+  sd <- sd(resids[[i]])
+  upper <- mean + 1.96 * sd
+  lower <- mean - 1.96 * sd
+  outliersValue <- resids[[i]][resids[[i]] < lower | resids[[i]] > upper]
+  outs[[i]] <- rownames(total.data[[i]])[resids[[i]] %in% outliersValue]
 }
 
+names <- rownames(pre.data)
+outs.mat <- matrix(nrow = length(names), ncol = 4)
+rownames(outs.mat) <- names
+colnames(outs.mat) <- c('TP 1', 'TP 2', 'TP 3', 'TP 4')
+for (i in 1:dim(outs.mat)[1]) {
+  for (j in 1:4) {
+    outs.mat[i,j] <- rownames(outs.mat)[i] %in% outs[[j]]
+  }
+}
+outs.mat <- outs.mat[outs.mat[,1] == TRUE | outs.mat[,2] == TRUE |
+  outs.mat[,3] == TRUE | outs.mat[,4] == TRUE,]
+write.csv(outs.mat, "~\\projects\\transcriptomics\\results\\totalResidOutliers - SD.csv")
+
+ribo.resids <- list()
+ribo.outs <- list()
 for (i in 1:4) {
  x <- ribo.data[[i]][,1]
  y <- ribo.data[[i]][,2]
  fit <- lm(log10(y) ~ log10(x))
- # fit <- lm(y ~ x)
- # print(paste("Ribosomal Time Point", i))
- # print(outlierTest(fit))
 
- resid <- rstandard(fit)
- qqnorm(resid,
-   ylab = "Standardized Residuals",
-   xlab = "Normal Scores",
-   main = paste("Ribosomal Time Point", i))
- qqline(resid)
+ ribo.resids[[i]] <- resid(fit)
+ mean <- mean(resids[[i]])
+ sd <- sd(resids[[i]])
+ upper <- mean + 1.96 * sd
+ lower <- mean - 1.96 * sd
+ outliersValue <- ribo.resids[[i]][ribo.resids[[i]] < lower | ribo.resids[[i]] > upper]
+ ribo.outs[[i]] <- rownames(total.data[[i]])[ribo.resids[[i]] %in% outliersValue]
 }
+
+ribo.names <- names[!grepl('VNG', names)]
+ribo.mat <- matrix(nrow = length(ribo.names), ncol = 4)
+rownames(ribo.mat) <- ribo.names
+colnames(ribo.mat) <- c('TP 1', 'TP 2', 'TP 3', 'TP 4')
+for (i in 1:dim(ribo.mat)[1]) {
+  for (j in 1:4) {
+    ribo.mat[i,j] <- rownames(ribo.mat)[i] %in% ribo.outs[[j]]
+  }
+}
+ribo.mat <- ribo.mat[ribo.mat[,1] == TRUE | ribo.mat[,2] == TRUE |
+  ribo.mat[,3] == TRUE | ribo.mat[,4] == TRUE,]
+write.csv(ribo.mat, "~\\projects\\transcriptomics\\results\\riboResidOutliers - SD.csv")
 
 end <- Sys.time()
 print(end - start)

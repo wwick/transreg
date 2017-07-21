@@ -4,7 +4,6 @@ file.path <- "~\\projects\\transcriptomics\\data\\"
 file.name <- "expressionMatrix.csv"
 
 q = 0.970 # 95% confidence
-require('outliers')
 
 Col <- function(x) {
   apply(cbind(pre.data[,x * 3 - 2], pre.data[,x * 3 - 1], pre.data[,x * 3]),
@@ -35,13 +34,13 @@ ribo.data <- list()
 for (i in 1:4) {
   total.data[[i]] <- cbind(Col(i), Col(i + 4))
   rownames(total.data[[i]]) <- rownames(pre.data)
-  total.data[[i]] <- total.data[[i]][total.data[[i]][,1] > 0.1,]
-  total.data[[i]] <- total.data[[i]][total.data[[i]][,2] > 0.1,]
+  total.data[[i]] <- total.data[[i]][total.data[[i]][,1] != 0,]
+  total.data[[i]] <- total.data[[i]][total.data[[i]][,2] != 0,]
   ribo.data[[i]] <- total.data[[i]][!grepl('VNG', rownames(total.data[[i]])),]
 }
 
 Pairs <- function(x) {
-  return (x[2] / x[1])
+  return (log2(x[2]) / log2(x[1]))
 }
 
 Anova <- function(ratios) {
@@ -67,9 +66,13 @@ outs <- list()
 ratios <- list()
 for (i in 1:4) {
   x <- apply(total.data[[i]], 1, Pairs)
-  outliersValue <- boxplot.stats(x)$out
-  outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
   ratios[[i]] <- x
+  mean <- mean(x)
+  sd <- sd(x)
+  upper <- mean + 1.96 * sd
+  lower <- mean - 1.96 * sd
+  outliersValue <- x[x < lower | x > upper]
+  outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
 }
 
 # Anova(ratios)
@@ -85,15 +88,19 @@ for (i in 1:dim(outs.mat)[1]) {
 }
 outs.mat <- outs.mat[outs.mat[,1] == TRUE | outs.mat[,2] == TRUE |
   outs.mat[,3] == TRUE | outs.mat[,4] == TRUE,]
-write.csv(outs.mat, "~\\projects\\transcriptomics\\results\\totalRatioOutliers.csv")
+write.csv(outs.mat, "~\\projects\\transcriptomics\\results\\totalRatioOutliers - Log, SD.csv")
 
 ribo.outs <- list()
 ribo.ratios <- list()
 for (i in 1:4) {
   x <- apply(ribo.data[[i]], 1, Pairs)
-  outliersValue <- boxplot.stats(x)$out
-  ribo.outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
   ribo.ratios[[i]] <- x
+  mean <- mean(x)
+  sd <- sd(x)
+  upper <- mean + 1.96 * sd
+  lower <- mean - 1.96 * sd
+  outliersValue <- x[x < lower | x > upper]
+  ribo.outs[[i]] <- rownames(total.data[[i]])[x %in% outliersValue]
 }
 
 # Anova(ribo.ratios)
@@ -109,7 +116,14 @@ for (i in 1:dim(ribo.mat)[1]) {
 }
 ribo.mat <- ribo.mat[ribo.mat[,1] == TRUE | ribo.mat[,2] == TRUE |
   ribo.mat[,3] == TRUE | ribo.mat[,4] == TRUE,]
-write.csv(ribo.mat, "~\\projects\\transcriptomics\\results\\riboRatioOutliers.csv")
+write.csv(ribo.mat, "~\\projects\\transcriptomics\\results\\riboRatioOutliers - Log, SD.csv")
+
+# par(mfrow = c(2,2))
+# for (i in 1:4) {
+#   qqnorm(ratios[[i]],
+#     main = paste("Total Time Point", i), ylim = c(0,3))
+#   qqline(ratios[[i]])
+# }
 
 end <- Sys.time()
 print(end - start)

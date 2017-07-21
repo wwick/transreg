@@ -51,7 +51,7 @@ for (i in 1:4) {
   total.data[[i]] <- cbind(Col(i), Col(i + 4))
   rownames(total.data[[i]]) <- rownames(pre.data)
   total.data[[i]] <- total.data[[i]][total.data[[i]][,1] != 0,]
-  total.data[[i]] <- total.data[[i]][total.data[[i]][,2] != 0,]
+  total.data[[i]] <- total.data[[i]][total.data[[i]][,2] > 0,]
   ribo.data[[i]] <- total.data[[i]][!grepl('VNG', rownames(total.data[[i]])),]
 }
 
@@ -66,6 +66,9 @@ for (i in 1:4) {
   plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
     main = paste('Total Time Point', i))
   Graph(fit)
+  # fit <- lm(y ~ x)
+  # plot(x, y)
+  # abline(fit)
 }
 
 for (i in 1:4) {
@@ -75,6 +78,9 @@ for (i in 1:4) {
   plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
     main = paste('Ribosomal Time Point', i))
   Graph(fit)
+  # fit <- lm(y ~ x)
+  # plot(x, y)
+  # abline(fit)
 }
 
 end <- Sys.time()

@@ -62,8 +62,9 @@ ylim <- xlim
 for (i in 1:4) {
   x <- total.data[[i]][,1]
   y <- total.data[[i]][,2]
-  fit <- lm(log10(y) ~ log10(x))
-  plot(density(resid(fit)))
+  # fit <- lm(log10(y) ~ log10(x))
+  fit <- lm(y ~ x)
+  plot(density(resid(fit)), main = paste('Total Time Point', i), xlim = c(-5e3, 5e3))
 #  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
 #    main = paste('Total Time Point', i))
 #  Graph(fit)
@@ -72,8 +73,9 @@ for (i in 1:4) {
 for (i in 1:4) {
   x <- ribo.data[[i]][,1]
   y <- ribo.data[[i]][,2]
-  fit <- lm(log10(y) ~ log10(x))
-  plot(density(resid(fit)))
+  # fit <- lm(log10(y) ~ log10(x))
+  fit <- lm(y ~ x)
+  plot(density(resid(fit)), main = paste('Ribosomal Time Point', i))
 #  plot(x, y, log = 'xy', xlab = '', ylab = '', xlim = xlim, ylim = ylim,
 #    main = paste('Ribosomal Time Point', i))
 #  Graph(fit)
